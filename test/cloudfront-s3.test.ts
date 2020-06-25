@@ -6,16 +6,9 @@ test('SQS Queue Created', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, "TestStack");
     // WHEN
-    new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct');
+    new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
+      name: 'example'
+    });
     // THEN
     expectCDK(stack).to(haveResource("AWS::SQS::Queue"));
-});
-
-test('SNS Topic Created', () => {
-  const app = new cdk.App();
-  const stack = new cdk.Stack(app, "TestStack");
-  // WHEN
-  new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct');
-  // THEN
-  expectCDK(stack).to(haveResource("AWS::SNS::Topic"));
 });
