@@ -1,8 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import { OriginAccessIdentity, CloudFrontWebDistribution, LambdaEdgeEventType } from '@aws-cdk/aws-cloudfront';
-import { Bucket } from '@aws-cdk/aws-s3';
+import { Bucket, IBucket } from '@aws-cdk/aws-s3';
 import { Runtime, Version } from '@aws-cdk/aws-lambda';
-import { RemovalPolicy, CfnOutput, Construct, Tag } from '@aws-cdk/core';
+import { RemovalPolicy, CfnOutput, Construct } from '@aws-cdk/core';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import {createHash} from 'crypto'
 import { readFileSync } from 'fs';
@@ -28,7 +28,7 @@ export interface CloudfrontS3Props {
   /**
    * Import own S3 bucket
    */
-  s3Bucket?: Bucket
+  s3Bucket?: IBucket
 
   /**
    * Log Lambda@edge process
@@ -50,7 +50,7 @@ export class CloudfrontS3 extends cdk.Construct {
   /**
    * S3 bucket
    */
-  public readonly WebsiteBucket: Bucket
+  public readonly WebsiteBucket?: IBucket
 
   /**
    * Origin Access Identity
@@ -62,6 +62,16 @@ export class CloudfrontS3 extends cdk.Construct {
    */
   public readonly Distribution: CloudFrontWebDistribution
 
+  public readonly resources: Construct[] = []
+  getS3Bucket(s3Bucket?: IBucket): IBucket {
+    if (s3Bucket) return s3Bucket
+    const WebsiteBucket = new Bucket(this, 'WebsiteBucket',{
+      removalPolicy: RemovalPolicy.DESTROY
+    })
+    this.resources.push(WebsiteBucket)
+    return WebsiteBucket
+  }
+
   constructor(scope: cdk.Construct, id: string, props: CloudfrontS3Props) {
     super(scope, id);
     const {
@@ -72,7 +82,6 @@ export class CloudfrontS3 extends cdk.Construct {
       debugMode,
     } = props;
     const EDGE_URL_HANDLER_PATH = './lib/lambda/originRequest.ts'
-    const resources: Construct[] = []
   
     /**
      * Lambda Edge Functions
@@ -86,7 +95,7 @@ export class CloudfrontS3 extends cdk.Construct {
         DEBUG: debugMode ? 'true': 'false'
       }
     })
-    resources.push(this.OriginRequestHandler)
+    this.resources.push(this.OriginRequestHandler)
   
     /**
      * ZIPファイルが変更されたら新しいバージョンを発行する
@@ -103,10 +112,7 @@ export class CloudfrontS3 extends cdk.Construct {
     /**
      * S3 bucket
      */
-    this.WebsiteBucket = s3Bucket || new Bucket(this, 'WebsiteBucket',{
-      removalPolicy: RemovalPolicy.DESTROY
-    })
-    resources.push(this.WebsiteBucket)
+    this.WebsiteBucket = this.getS3Bucket(s3Bucket)
 
     /**
      * CloudFront Distribution
@@ -136,7 +142,7 @@ export class CloudfrontS3 extends cdk.Construct {
       }]
     })
     this.Distribution.node.addDependency(this.OriginRequestHandler)
-    resources.push(this.Distribution)
+    this.resources.push(this.Distribution)
   
 
     new CfnOutput(this, 'CloudFrontDomain', {
