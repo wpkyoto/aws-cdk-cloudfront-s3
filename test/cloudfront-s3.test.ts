@@ -1,8 +1,4 @@
-import {
-  expect as expectCDK,
-  haveResource,
-  SynthUtils,
-} from '@aws-cdk/assert';
+import { expect as expectCDK, haveResource, SynthUtils } from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
 import * as CloudfrontS3 from '../lib/index';
 import { Bucket } from '@aws-cdk/aws-s3';
