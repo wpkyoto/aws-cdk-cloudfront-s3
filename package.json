@@ -8,6 +8,7 @@
     "watch": "tsc -w",
     "lint": "tsdx lint",
     "test": "jest",
+    "prepare": "tsc",
     "semantic-release": "semantic-release"
   },
   "author": "Hidetaka Okamoto",
