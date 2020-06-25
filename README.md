@@ -1,12 +1,81 @@
-# Welcome to your CDK TypeScript Construct Library project!
+# CloudFront S3 with Origin Access Identity
 
-You should explore the contents of this project. It demonstrates a CDK Construct Library that includes a construct (`CloudfrontS3`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
 
-The construct defines an interface (`CloudfrontS3Props`) to configure the visibility timeout of the queue.
+## AWS CDK version
 
-## Useful commands
+Now using `v1.47.0`.
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
+## Install
+
+```
+$ npm install -S @wpkyoto/aws-cdk-cloudfront-s3
+```
+
+## Usage
+
+
+```typescript
+import { expect as expectCDK, haveResource, SynthUtils } from '@aws-cdk/assert';
+import * as cdk from '@aws-cdk/core';
+import { Bucket } from '@aws-cdk/aws-s3';
+import { CloudfrontS3 } from '@wpkyoto/aws-cdk-cloudfront-s3';
+
+const app = new cdk.App();
+const stack = new cdk.Stack(app, 'TestStack');
+new CloudfrontS3(stack, 'MyTestConstruct', {
+  name: 'example',
+});
+
+```
+
+### Use own S3 bucket
+
+```typescript
+
+import { expect as expectCDK, haveResource, SynthUtils } from '@aws-cdk/assert';
+import * as cdk from '@aws-cdk/core';
+import { Bucket } from '@aws-cdk/aws-s3';
+import { CloudfrontS3 } from '@wpkyoto/aws-cdk-cloudfront-s3';
+
+const app = new cdk.App();
+const stack = new cdk.Stack(app, 'TestStack');
+new CloudfrontS3(stack, 'MyTestConstruct', {
+  name: 'example',
+  s3Bucket: Bucket.fromBucketName(stack, 'Dummy', 'dummy'),
+});
+```
+
+### Custom Domain
+
+```typescript
+
+import { expect as expectCDK, haveResource, SynthUtils } from '@aws-cdk/assert';
+import * as cdk from '@aws-cdk/core';
+import { Bucket } from '@aws-cdk/aws-s3';
+import { CloudfrontS3 } from '@wpkyoto/aws-cdk-cloudfront-s3';
+
+const app = new cdk.App();
+const stack = new cdk.Stack(app, 'TestStack');
+new CloudfrontS3(stack, 'MyTestConstruct', {
+  name: 'example',
+  acmCertificationARN: 'YOUR_ACM_ARN',
+  domains: ['example.com']
+});
+```
+
+### Logging Lambda@edge process
+
+```typescript
+import { expect as expectCDK, haveResource, SynthUtils } from '@aws-cdk/assert';
+import * as cdk from '@aws-cdk/core';
+import { Bucket } from '@aws-cdk/aws-s3';
+import { CloudfrontS3 } from '@wpkyoto/aws-cdk-cloudfront-s3';
+
+const app = new cdk.App();
+const stack = new cdk.Stack(app, 'TestStack');
+new CloudfrontS3(stack, 'MyTestConstruct', {
+  name: 'example',
+  debugMode: true
+});
+
+```
