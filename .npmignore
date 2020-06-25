@@ -4,7 +4,7 @@
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-.cache/
+lib/lambda/.cache/
 test/
 *.config.js
 renovate.json
