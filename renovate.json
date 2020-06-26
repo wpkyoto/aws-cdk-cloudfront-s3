@@ -1,5 +1,7 @@
 {
   "extends": [
-    "@wpkyoto"
+    "@wpkyoto:default",
+    "@wpkyoto:jest",
+    "@wpkyoto:aws-cdk"
   ]
 }
