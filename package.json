@@ -4,11 +4,15 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "watch": "tsc -w",
     "lint": "tsdx lint",
     "test": "jest",
     "prepare": "tsc",
+    "clean": "npm run clean:resource && npm run clean:test",
+    "clean:resource": "rimraf ./lib/***/*.js ./lib/***/*.d.ts",
+    "clean:test": "rimraf ./test/***/*.js ./test/***/*.d.ts",
+    "clean:example": "rimraf ./example/***/*.js ./example/***/*.d.ts",
     "semantic-release": "semantic-release"
   },
   "author": "Hidetaka Okamoto",

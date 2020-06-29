@@ -10,3 +10,4 @@ test/
 renovate.json
 .github/
 *.log
+example/

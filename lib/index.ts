@@ -31,10 +31,6 @@ export interface CloudfrontS3Props {
    */
   s3Bucket?: IBucket
 
-  /**
-   * Log Lambda@edge process
-   */
-  debugMode?: boolean;
 }
 
 export class CloudfrontS3 extends cdk.Construct {
@@ -51,7 +47,7 @@ export class CloudfrontS3 extends cdk.Construct {
   /**
    * S3 bucket
    */
-  public readonly WebsiteBucket?: IBucket
+  public readonly WebsiteBucket: IBucket
 
   /**
    * Origin Access Identity
@@ -80,7 +76,6 @@ export class CloudfrontS3 extends cdk.Construct {
       acmCertificationARN,
       domains,
       s3Bucket,
-      debugMode,
     } = props;
     const EDGE_URL_HANDLER_PATH = join(__dirname, '/lambda/originRequest.ts')
   
@@ -92,9 +87,6 @@ export class CloudfrontS3 extends cdk.Construct {
       runtime: Runtime.NODEJS_12_X,
       functionName: `${name}URLFormatter`,
       entry: EDGE_URL_HANDLER_PATH,
-      environment: {
-        DEBUG: debugMode ? 'true': 'false'
-      }
     })
     this.resources.push(this.OriginRequestHandler)
   
