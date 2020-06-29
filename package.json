@@ -24,9 +24,15 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint --fix",
+      "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "tsdx lint --fix",
+      "git add"
+    ]
   },
   "publishConfig": {
     "access": "public"
@@ -47,6 +53,7 @@
     "@types/node": "10.17.5",
     "husky": "^4.2.5",
     "jest": "^25.5.0",
+    "lint-staged": "^10.2.11",
     "semantic-release": "^17.1.0",
     "ts-jest": "^25.3.1",
     "ts-node": "^8.10.2",
