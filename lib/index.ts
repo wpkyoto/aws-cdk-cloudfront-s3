@@ -6,6 +6,7 @@ import { RemovalPolicy, CfnOutput, Construct } from '@aws-cdk/core';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs'
 import {createHash} from 'crypto'
 import { readFileSync } from 'fs';
+import { join } from 'path';
 
 
 export interface CloudfrontS3Props {
@@ -81,7 +82,7 @@ export class CloudfrontS3 extends cdk.Construct {
       s3Bucket,
       debugMode,
     } = props;
-    const EDGE_URL_HANDLER_PATH = './lib/lambda/originRequest.ts'
+    const EDGE_URL_HANDLER_PATH = join(__dirname, '/lambda/originRequest.ts')
   
     /**
      * Lambda Edge Functions
