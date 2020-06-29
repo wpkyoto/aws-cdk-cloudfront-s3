@@ -1,0 +1,394 @@
+yarn run v1.21.1
+$ cdk synth WithCustomDomain
+Resources:
+  CloudFrontWithS3OriginRequestHandlerServiceRole472B2ACC:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: edgelambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/OriginRequestHandler/ServiceRole/Resource
+  CloudFrontWithS3OriginRequestHandler3A0DA61E:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aS3Bucket883D3637
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aS3VersionKey6A1BBF73
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aS3VersionKey6A1BBF73
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - CloudFrontWithS3OriginRequestHandlerServiceRole472B2ACC
+          - Arn
+      Runtime: nodejs12.x
+      FunctionName: WithCustomDomainURLFormatter
+    DependsOn:
+      - CloudFrontWithS3OriginRequestHandlerServiceRole472B2ACC
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/OriginRequestHandler/Resource
+      aws:asset:path: asset.3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2a
+      aws:asset:property: Code
+  CloudFrontWithS3OriginRequestHandlerVersiond2924a10743f84f6a3d847977c6bca0e27d697757ed7a5f65521c942b0dcb8dfE552125F:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName:
+        Ref: CloudFrontWithS3OriginRequestHandler3A0DA61E
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/OriginRequestHandler/Versiond2924a10743f84f6a3d847977c6bca0e27d697757ed7a5f65521c942b0dcb8df/Resource
+  CloudFrontWithS3WebsiteBucketE869467F:
+    Type: AWS::S3::Bucket
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/WebsiteBucket/Resource
+  CloudFrontWithS3WebsiteBucketPolicyC78DE434:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CloudFrontWithS3WebsiteBucketE869467F
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - CloudFrontWithS3OAIForBucketB7987D02
+                  - S3CanonicalUserId
+            Resource:
+              - Fn::GetAtt:
+                  - CloudFrontWithS3WebsiteBucketE869467F
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CloudFrontWithS3WebsiteBucketE869467F
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/WebsiteBucket/Policy/Resource
+  CloudFrontWithS3OAIForBucketB7987D02:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Allows CloudFront to reach the bucket
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/OAIForBucket/Resource
+  CloudFrontWithS3CDNCFDistribution48508FCA:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - PUT_YOUR_DOMAIN
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              LambdaFunctionARN:
+                Ref: CloudFrontWithS3OriginRequestHandlerVersiond2924a10743f84f6a3d847977c6bca0e27d697757ed7a5f65521c942b0dcb8dfE552125F
+          TargetOriginId: origin1
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - CloudFrontWithS3WebsiteBucketE869467F
+                - RegionalDomainName
+            Id: origin1
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - ""
+                  - - origin-access-identity/cloudfront/
+                    - Ref: CloudFrontWithS3OAIForBucketB7987D02
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: PUT_YOUR_ACM_ARN
+          SslSupportMethod: sni-only
+    DependsOn:
+      - CloudFrontWithS3OriginRequestHandler3A0DA61E
+      - CloudFrontWithS3OriginRequestHandlerServiceRole472B2ACC
+      - CloudFrontWithS3OriginRequestHandlerVersiond2924a10743f84f6a3d847977c6bca0e27d697757ed7a5f65521c942b0dcb8dfE552125F
+    Metadata:
+      aws:cdk:path: WithCustomDomain/CloudFrontWithS3/CDN/CFDistribution
+  DefaultContentUploadCustomResourceEC692518:
+    Type: Custom::CDKBucketDeployment
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536
+          - Arn
+      SourceBucketNames:
+        - Ref: AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3BucketE6FE59A0
+      SourceObjectKeys:
+        - Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3VersionKeyE383DF1D
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3VersionKeyE383DF1D
+      DestinationBucketName:
+        Ref: CloudFrontWithS3WebsiteBucketE869467F
+      RetainOnDelete: false
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: WithCustomDomain/DefaultContentUpload/CustomResource/Default
+  CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: WithCustomDomain/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource
+  CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3BucketE6FE59A0
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Ref: AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3BucketE6FE59A0
+                    - /*
+          - Action:
+              - s3:GetObject*
+              - s3:GetBucket*
+              - s3:List*
+              - s3:DeleteObject*
+              - s3:PutObject*
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - CloudFrontWithS3WebsiteBucketE869467F
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CloudFrontWithS3WebsiteBucketE869467F
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF
+      Roles:
+        - Ref: CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265
+    Metadata:
+      aws:cdk:path: WithCustomDomain/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource
+  CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0S3Bucket88A20322
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0S3VersionKey5726B1E8
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0S3VersionKey5726B1E8
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265
+          - Arn
+      Runtime: python3.6
+      Timeout: 900
+    DependsOn:
+      - CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF
+      - CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265
+    Metadata:
+      aws:cdk:path: WithCustomDomain/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource
+      aws:asset:path: asset.85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0.zip
+      aws:asset:property: Code
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.47.0,@aws-cdk/assets=1.47.0,@aws-cdk/aws-certificatemanager=1.47.0,@aws-cdk/aws-cloudfront=1.47.0,@aws-cdk/aws-cloudwatch=1.47.0,@aws-cdk/aws-ec2=1.47.0,@aws-cdk/aws-events=1.47.0,@aws-cdk/aws-iam=1.47.0,@aws-cdk/aws-kms=1.47.0,@aws-cdk/aws-lambda=1.47.0,@aws-cdk/aws-lambda-nodejs=1.47.0,@aws-cdk/aws-logs=1.47.0,@aws-cdk/aws-s3=1.47.0,@aws-cdk/aws-s3-assets=1.47.0,@aws-cdk/aws-s3-deployment=1.47.0,@aws-cdk/aws-sqs=1.47.0,@aws-cdk/aws-ssm=1.47.0,@aws-cdk/cloud-assembly-schema=1.47.0,@aws-cdk/core=1.47.0,@aws-cdk/cx-api=1.47.0,@aws-cdk/region-info=1.47.0,jsii-runtime=node.js/v12.9.1
+    Condition: CDKMetadataAvailable
+Outputs:
+  CloudFrontWithS3CloudFrontDomainC3AB8B49:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Fn::GetAtt:
+              - CloudFrontWithS3CDNCFDistribution48508FCA
+              - DomainName
+Parameters:
+  AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aS3Bucket883D3637:
+    Type: String
+    Description: S3 bucket for asset "3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2a"
+  AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aS3VersionKey6A1BBF73:
+    Type: String
+    Description: S3 key for asset version "3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2a"
+  AssetParameters3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2aArtifactHashE35074FC:
+    Type: String
+    Description: Artifact hash for asset "3c0b6a206b414f707b21b77c0a5341a8ee17f9daa58f8808d5f9ef583aa66c2a"
+  AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0S3Bucket88A20322:
+    Type: String
+    Description: S3 bucket for asset "85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0"
+  AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0S3VersionKey5726B1E8:
+    Type: String
+    Description: S3 key for asset version "85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0"
+  AssetParameters85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0ArtifactHash877EFA91:
+    Type: String
+    Description: Artifact hash for asset "85263806834b4abe18b7438876d0e408b131a41c86272285f069bb9fa96666f0"
+  AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3BucketE6FE59A0:
+    Type: String
+    Description: S3 bucket for asset "aeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446"
+  AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446S3VersionKeyE383DF1D:
+    Type: String
+    Description: S3 key for asset version "aeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446"
+  AssetParametersaeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446ArtifactHash9A7C69B0:
+    Type: String
+    Description: Artifact hash for asset "aeee86bc09c9fd57eddd365378f58b1df2f1ff0da5a450fbd5623da8fef93446"
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
+Done in 10.15s.
