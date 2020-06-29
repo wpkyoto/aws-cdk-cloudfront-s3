@@ -11,4 +11,4 @@ cdk.out
 # Parcel build directories
 .cache
 .build
-yarn-error.log
+*.log

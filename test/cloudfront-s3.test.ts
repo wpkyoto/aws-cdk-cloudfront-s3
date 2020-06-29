@@ -21,6 +21,9 @@ describe('Resource creation', () => {
     ])('Should create a %p resourec', type => {
       expectCDK(stack).to(haveResource(type));
     });
+    it('should match snapshot', () => {
+      expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+    });
   });
   describe('import s3 bucket', () => {
     const app = new cdk.App();
@@ -44,25 +47,29 @@ describe('Resource creation', () => {
         expectCDK(stack).notTo(haveResource(type));
       }
     );
+    it('should match snapshot', () => {
+      expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+    });
   });
-});
-describe('stack snapshot', () => {
-  it.each([
-    {},
-    { s3BucketName: 'dummy' },
-    { domains: ['example.com'], acmCertificationARN: 'dummyarn' },
-  ])('should match snapthos', conf => {
+  describe('with custom domain', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'TestStack');
-    if (conf.s3BucketName) {
-      // @ts-ignore
-      conf.s3Bucket = Bucket.fromBucketName(stack, 'Dummy', conf.s3BucketName);
-      delete conf.s3BucketName;
-    }
     new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
       name: 'example',
-      ...(conf as CloudfrontS3.CloudfrontS3Props),
+      domains: ['example.com'],
+      acmCertificationARN: 'dummyarn',
     });
-    expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+    it.each([
+      'AWS::IAM::Role',
+      'AWS::Lambda::Function',
+      'AWS::Lambda::Version',
+      'AWS::CloudFront::CloudFrontOriginAccessIdentity',
+      'AWS::CloudFront::Distribution',
+    ])('Should create a %p resourec', type => {
+      expectCDK(stack).to(haveResource(type));
+    });
+    it('should match snapshot', () => {
+      expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+    });
   });
 });
