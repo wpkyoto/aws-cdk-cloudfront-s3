@@ -44,18 +44,21 @@ describe('origin-request', () => {
   let request: CloudFrontRequestEvent;
   beforeEach(() => (request = getEvent('/test')));
   it('should pass throw by default', async () => {
-    await expect(handler(request, {} as Context, {} as any))
-        .resolves.toEqual(request.Records[0].cf.request)
+    await expect(handler(request, {} as Context, {} as any)).resolves.toEqual(
+      request.Records[0].cf.request
+    );
   });
   it('should replace /test/ to /test/index.html', async () => {
-    request = getEvent('/test/')
-    const expected =  getEvent('/test/index.html')
-    await expect(handler(request, {} as Context, {} as any))
-        .resolves.toEqual(expected.Records[0].cf.request)
-  })
+    request = getEvent('/test/');
+    const expected = getEvent('/test/index.html');
+    await expect(handler(request, {} as Context, {} as any)).resolves.toEqual(
+      expected.Records[0].cf.request
+    );
+  });
   it('should not throw error when given invalid props, should pass throw', async () => {
-    request = getEvent(undefined as any)
-    await expect(handler(request, {} as Context, {} as any))
-        .resolves.toEqual(request.Records[0].cf.request)
-  })
+    request = getEvent(undefined as any);
+    await expect(handler(request, {} as Context, {} as any)).resolves.toEqual(
+      request.Records[0].cf.request
+    );
+  });
 });
