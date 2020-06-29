@@ -68,14 +68,20 @@ describe('stack snapshot', () => {
 });
 
 describe('Resoruce test', () => {
-  const app:cdk.App = new cdk.App()
-  const stack: cdk.Stack= new cdk.Stack(app, 'TestStack');
-  const resource: CloudfrontS3.CloudfrontS3 = new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
-    name: 'example',
+  const app: cdk.App = new cdk.App();
+  const stack: cdk.Stack = new cdk.Stack(app, 'TestStack');
+  const resource: CloudfrontS3.CloudfrontS3 = new CloudfrontS3.CloudfrontS3(
+    stack,
+    'MyTestConstruct',
+    {
+      name: 'example',
+    }
+  );
+  const resourceNames: Array<keyof CloudfrontS3.CloudfrontS3> = [
+    'DistributionOAI',
+    'Distribution',
+  ];
+  it.each(resourceNames)('[Resource: %p] Should match snapshot', name => {
+    expect(resource[name]).toMatchSnapshot();
   });
-  const resourceNames: Array<keyof CloudfrontS3.CloudfrontS3> = ["DistributionOAI", "Distribution"]
-  it.each(resourceNames)("[Resource: %p] Should match snapshot", (name) => {
-      expect(resource[name]).toMatchSnapshot()
-  })
-
-})
+});
