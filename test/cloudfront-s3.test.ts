@@ -23,7 +23,7 @@ describe('Resource creation', () => {
     });
     it('should match snapshot', () => {
       expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
-    })
+    });
   });
   describe('import s3 bucket', () => {
     const app = new cdk.App();
@@ -49,14 +49,15 @@ describe('Resource creation', () => {
     );
     it('should match snapshot', () => {
       expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
-    })
+    });
   });
   describe('with custom domain', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'TestStack');
     new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
       name: 'example',
-      domains: ['example.com'], acmCertificationARN: 'dummyarn',
+      domains: ['example.com'],
+      acmCertificationARN: 'dummyarn',
     });
     it.each([
       'AWS::IAM::Role',
@@ -67,14 +68,8 @@ describe('Resource creation', () => {
     ])('Should create a %p resourec', type => {
       expectCDK(stack).to(haveResource(type));
     });
-    it.each(['AWS::S3::Bucket', 'AWS::S3::BucketPolicy'])(
-      'Should not create a %p resourec',
-      type => {
-        expectCDK(stack).notTo(haveResource(type));
-      }
-    );
     it('should match snapshot', () => {
       expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
-    })
-  })
+    });
+  });
 });
