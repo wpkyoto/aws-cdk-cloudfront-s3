@@ -98,7 +98,16 @@
     "@aws-cdk/core" "1.47.0"
     constructs "^3.0.2"
 
-"@aws-cdk/aws-lambda@1.47.0":
+"@aws-cdk/aws-lambda-nodejs@^1.47.0":
+  version "1.47.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda-nodejs/-/aws-lambda-nodejs-1.47.0.tgz#dd28cc95d1fdbab648035a85e7a723a2814c3b93"
+  integrity sha512-+jYvTwdfM83HNMMG+HboUVcMQUaq8ZmUheMfusoqE7d9X44+uoDU/6MvRJXmGK4UrGehzFXFTUWbOQR9PMh2Sw==
+  dependencies:
+    "@aws-cdk/aws-lambda" "1.47.0"
+    "@aws-cdk/core" "1.47.0"
+    constructs "^3.0.2"
+
+"@aws-cdk/aws-lambda@1.47.0", "@aws-cdk/aws-lambda@^1.47.0":
   version "1.47.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda/-/aws-lambda-1.47.0.tgz#73504b9e2317e0f100f2bf218e0d94043ae794c6"
   integrity sha512-r/nt9S7KeEX7Ak6mKAXE1r/AEQIIBHP2NS6MOmph7nkW1CWZgvJK0fxdKrMDFgp6VFV/9+x0upXEYysOXjsfkQ==
@@ -706,6 +715,11 @@
   integrity sha512-wEj54PfsZ5jGSwMX68G8ZXFawcSglQSXqCftWX3ec8MDUzQdHgcKvw97awHbY0efQEL5iKUOAmmVtoYgmrSG4Q==
   dependencies:
     type-detect "4.0.8"
+
+"@types/aws-lambda@^8.10.57":
+  version "8.10.57"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.57.tgz#39ca3bbe52c5b4e27dc83c2a3b5ed434834568b9"
+  integrity sha512-LMOA9bJLerYoe2KvzHugfaLTa0jUPWrqwxq5VUZ/ZuAMKLJm6oNdCio38vw8jWEIAkPR3P6mBIwnU1DPgelAKg==
 
 "@types/babel__core@^7.1.7":
   version "7.1.9"
