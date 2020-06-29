@@ -3,7 +3,7 @@ import * as cdk from '@aws-cdk/core';
 import * as CloudfrontS3 from '../lib/index';
 import { Bucket } from '@aws-cdk/aws-s3';
 
-describe('Resource creation', () => {
+describe('Stack test', () => {
   describe('default', () => {
     const app = new cdk.App();
     const stack = new cdk.Stack(app, 'TestStack');
@@ -60,9 +60,22 @@ describe('stack snapshot', () => {
       delete conf.s3BucketName;
     }
     new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
-      name: 'example',
       ...(conf as CloudfrontS3.CloudfrontS3Props),
+      name: 'example',
     });
     expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
   });
 });
+
+describe('Resoruce test', () => {
+  const app:cdk.App = new cdk.App()
+  const stack: cdk.Stack= new cdk.Stack(app, 'TestStack');
+  const resource: CloudfrontS3.CloudfrontS3 = new CloudfrontS3.CloudfrontS3(stack, 'MyTestConstruct', {
+    name: 'example',
+  });
+  const resourceNames: Array<keyof CloudfrontS3.CloudfrontS3> = ["DistributionOAI", "Distribution"]
+  it.each(resourceNames)("[Resource: %p] Should match snapshot", (name) => {
+      expect(resource[name]).toMatchSnapshot()
+  })
+
+})
